@@ -37,8 +37,7 @@ class GetDBdataforfall():
         end = datetime.combine(date_obj, time.max)
         pipeline = [
             {"$match": {
-                "timestamp": {"$gte": start, "$lte": end},
-                "Alert": True
+                "timestamp": {"$gte": start, "$lte": end}
             }},
             {"$group": {
                 "_id": "$camera_name",
@@ -55,8 +54,7 @@ class GetDBdataforfall():
         
         pipeline = [
             {"$match": {
-                "timestamp": {"$gte": start, "$lte": end},
-                "Alert": True
+                "timestamp": {"$gte": start, "$lte": end}
             }},
             {"$group": {
                 "_id": "$camera_name",
@@ -77,8 +75,7 @@ class GetDBdataforfall():
         end = datetime.combine(date_obj, time.max)
         pipeline = [
             {"$match": {
-                "timestamp": {"$gte": start, "$lte": end},
-                "Alert": True
+                "timestamp": {"$gte": start, "$lte": end}
             }},
             {"$project": {
                 "hour": {"$hour": "$timestamp"}

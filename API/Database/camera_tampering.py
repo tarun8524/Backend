@@ -32,7 +32,6 @@ class GetDBdataforCameraTampering():
         end = datetime.combine(date_obj, time.max)
         pipeline = [
             {"$match": {
-                "cam_temp": True,
                 "timestamp": {"$gte": start, "$lte": end}
             }},
             {"$group": {
@@ -50,7 +49,6 @@ class GetDBdataforCameraTampering():
         end = datetime.combine(date_obj, time.max)
         pipeline = [
             {"$match": {
-                "cam_temp": True,
                 "timestamp": {"$gte": start, "$lte": end}
             }},
             {"$group": {
