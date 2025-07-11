@@ -58,7 +58,7 @@ class GetDBdataforEmp_unavailability():
         ]
         result = list(collection.aggregate(pipeline))
         if result:
-            return MostEmp_unavailability(camera_name=result[0]["_id"],duration= result[0]["total_unavailability"])
+            return MostEmp_unavailability(camera_name=result[0]["_id"],duration= round(result[0]["total_unavailability"],2))
             #      {
             #     "camera_name": result[0]["_id"],
             #     "total_unavailability_sec": result[0]["total_unavailability"]
@@ -81,7 +81,7 @@ class GetDBdataforEmp_unavailability():
             {"$sort": {"_id": 1}}
         ]
         results = collection.aggregate(pipeline)
-        return [CamerawiseEmp_unavailability(camera_name= r["_id"], duration = r["total_unavailability"]) for r in results ] 
+        return [CamerawiseEmp_unavailability(camera_name= r["_id"], duration = round(r["total_unavailability"],2)) for r in results ] 
         # [
         #     {"camera_name": r["_id"], "total_unavailability_sec": r["total_unavailability"]}
         #     for r in results
@@ -107,7 +107,7 @@ class GetDBdataforEmp_unavailability():
             {"$sort": {"_id": 1}}
         ]
         results = collection.aggregate(pipeline)
-        return [Emp_unavailabilityTrend(time = f"{r['_id']:02d}:00", duration= r["total_unavailability"]) for r in results]
+        return [Emp_unavailabilityTrend(time = f"{r['_id']:02d}:00", duration= round(r["total_unavailability"],2)) for r in results]
         # [
         #     {"hour": f"{r['_id']:02d}:00", "total_unavailability_sec": r["total_unavailability"]}
         #     for r in results

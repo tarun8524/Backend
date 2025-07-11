@@ -44,9 +44,7 @@ class GetDBdatafordwelltime:
             }}
         ]
         result = list(collection.aggregate(pipeline))
-        return [CameraWisedwelltime(camera_name=r["_id"], duration=float(r["count"])) for r in result]
-
-
+        return [CameraWisedwelltime(camera_name=r["_id"], duration=round(float(r["count"]), 2)) for r in result]
 
     
     def get_max_dwelltime(self):
@@ -62,7 +60,7 @@ class GetDBdatafordwelltime:
         result = list(collection.aggregate(pipeline))
         if result:
             record = result[0]
-            return Camerawithmax(camera_name=record["camera_name"], duration=float(record["customer_dwell_time"]))
+            return Camerawithmax(camera_name=record["camera_name"], duration=round(float(record["customer_dwell_time"]),2))
         return Camerawithmax(camera_name="", duration=0.0)
 
     def get_dwell_time_trend(self):
@@ -79,4 +77,4 @@ class GetDBdatafordwelltime:
             {"$sort": {"_id.hour": 1}}
         ]
         result = list(collection.aggregate(pipeline))
-        return [Dwelltimetrend(time=str(r["_id"]["hour"]), duration=float(r["total_dwell_time"])) for r in result]
+        return [Dwelltimetrend(time=str(r["_id"]["hour"]), duration=round(float(r["total_dwell_time"]),2)) for r in result]
