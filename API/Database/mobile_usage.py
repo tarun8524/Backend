@@ -50,7 +50,7 @@ class GetDBdataforMobileUsage():
         ]
 
         results = list(collection.aggregate(pipeline))
-        return [CamerawiseMobileUsage(camera_name=r["_id"], duration=r["total_duration"]) for r in results]
+        return [CamerawiseMobileUsage(camera_name=r["_id"], duration=round(r["total_duration"], 2)) for r in results]
     
     # def get_Maxoccupancy(self):
         
@@ -72,5 +72,5 @@ class GetDBdataforMobileUsage():
         ]
 
         results = list(collection.aggregate(pipeline))
-        return [MobileUsageTrend(time=f"{r['_id']:02d}:00", duration=r["total_duration"]) for r in results]
+        return [MobileUsageTrend(time=f"{r['_id']:02d}:00", duration=round(r["total_duration"], 2)) for r in results]
 
