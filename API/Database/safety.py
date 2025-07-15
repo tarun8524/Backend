@@ -3,6 +3,8 @@ from datetime import datetime, time, timedelta
 from pydantic import BaseModel
 from typing import List, Union
 from API import api_db_handler
+import base64
+import os
 
 intrusion_collection = api_db_handler.db["intrusion"]
 fall_collection = api_db_handler.db["fall"]
@@ -16,6 +18,7 @@ class IntrusionAlert(BaseModel):
     camera_name: str
     time_elapsed: str
     timestamp: datetime
+    image_base64: str = None
 
 class FallAlert(BaseModel):
     alert: str = "Fall Detected"
@@ -23,6 +26,7 @@ class FallAlert(BaseModel):
     camera_name: str
     time_elapsed: str
     timestamp: datetime
+    image_base64: str = None
 
 class TamperingAlert(BaseModel):
     alert: str = "Camera Tampering Detected"
@@ -30,6 +34,7 @@ class TamperingAlert(BaseModel):
     camera_name: str
     time_elapsed: str
     timestamp: datetime
+    image_base64: str = None
 
 class RespondRequest(BaseModel):
     alert: str
@@ -61,6 +66,29 @@ class SafetyMonitoringAPI:
         else:
             hours = seconds // 3600
             return f"{int(hours)} hours"
+
+    def get_image_base64(self, alert_type: str, camera_name: str, timestamp: datetime) -> str:
+        if alert_type == "Camera Tampering Detected":
+            return None
+            
+        base_path = r"C:\Users\ntrst\Downloads\RESOLUTE_AI\fastapi\AI Engine\frames"
+        folder = "intrusion_frames" if alert_type == "Intrusion Alert" else "fall_frames"
+        # Format timestamp to match filename convention
+        timestamp_str = timestamp.strftime("%Y%m%d_%H%M%S_%f")[:-3]
+        image_name = f"{folder[:-7]}_*_{camera_name}_{timestamp_str}.jpg"
+        image_path = os.path.join(base_path, folder, image_name)
+        
+        try:
+            # Find matching image file (using glob pattern for UUID part)
+            import glob
+            matching_files = glob.glob(image_path)
+            if not matching_files:
+                return None
+                
+            with open(matching_files[0], "rb") as image_file:
+                return base64.b64encode(image_file.read()).decode('utf-8')
+        except Exception:
+            return None
 
     def get_latest_safety_alerts(self):
         date_obj = datetime.today().date()
@@ -159,16 +187,27 @@ class SafetyMonitoringAPI:
         intrusion_results = list(intrusion_collection.aggregate(intrusion_pipeline))
         for result in intrusion_results:
             result["time_elapsed"] = self.format_time_elapsed(result["time_elapsed"])
+            result["image_base64"] = self.get_image_base64(
+                "Intrusion Alert", 
+                result["camera_name"], 
+                result["timestamp"]
+            )
             results.append(IntrusionAlert(**result))
 
         fall_results = list(fall_collection.aggregate(fall_pipeline))
         for result in fall_results:
             result["time_elapsed"] = self.format_time_elapsed(result["time_elapsed"])
+            result["image_base64"] = self.get_image_base64(
+                "Fall Detected", 
+                result["camera_name"], 
+                result["timestamp"]
+            )
             results.append(FallAlert(**result))
 
         tampering_results = list(tampering_collection.aggregate(tampering_pipeline))
         for result in tampering_results:
             result["time_elapsed"] = self.format_time_elapsed(result["time_elapsed"])
+            result["image_base64"] = None  # No image for tampering alerts
             results.append(TamperingAlert(**result))
 
         if not results:
@@ -183,7 +222,7 @@ class SafetyMonitoringAPI:
         start = datetime.combine(date_obj, time.min)
         end = datetime.combine(date_obj, time.max)
 
-        if request.alert == "Intrusion Alert":
+        if request.alert == "Intrusiont Alert":
             result = intrusion_collection.update_one(
                 {
                     "camera_name": request.camera_name,

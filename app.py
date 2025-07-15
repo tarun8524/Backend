@@ -20,7 +20,6 @@ app.add_middleware(
 
 # Include the API router
 app.include_router(api_router)
-
 @app.get("/")
 async def root():
     return {"message": "Video Analytics API is running"}
